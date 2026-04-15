@@ -11,9 +11,9 @@ import { Formik } from 'formik'
 import React, { useState } from 'react'
 import * as Yup from 'yup'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
-
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 const passwordSchema = Yup.object().shape({
-  passwordLength: Yup.number().min(2, 'should be min 2').max(8, 'should be less than 8').required('length is required')
+  passwordLength: Yup.number().min(6, 'should be min 6').max(100, 'should be less than 100').required('length is required')
 })
 
 export default function App() {
@@ -64,10 +64,9 @@ export default function App() {
     setPassword('')
     setIspassgenerated(false)
     setNumbers(false)
-    setlowercase(true)
+    setlowercase(false)
+    setUppercase(false)
     setSymbols(false)
-    setlowercase(true)
-
   }
 
   return (<SafeAreaView style={styles.appContainer}>
@@ -93,41 +92,90 @@ export default function App() {
             isValid,
             handleSubmit,
             handleReset,
-            /* and other goodies */
+
           }) => (
             <>
               <View style={styles.inputWrapper}>
                 <View style={styles.inputColumn}>
                   <Text style={styles.heading}>Password Length</Text>
-                  <TextInput
-    style={styles.inputStyle}
-    value={values.passwordLength}
-    onChangeText={handleChange('passwordLength')}
-    placeholder="Ex. 8"
-    keyboardType="numeric"
-  />
-  {touched.passwordLength && errors.passwordLength && (
-    <Text style={styles.errorText}>{errors.passwordLength}</Text>
-  )}
-                </View></View>
-              <View style={styles.inputWrapper}></View>
-              <View style={styles.inputWrapper}></View>
-              <View style={styles.inputWrapper}></View>
-              <View style={styles.inputWrapper}></View>
-              <View style={styles.formActions}>
-                <TouchableOpacity>
-                  <Text>Generate Password</Text>
+                 
+                  {touched.passwordLength && errors.passwordLength && (
+                    <Text style={styles.errorText}>{errors.passwordLength}</Text>
+                  )}
+                </View>
+                <TextInput
+                    style={styles.inputStyle}
+                    value={values.passwordLength}
+                    onChangeText={handleChange('passwordLength')}
+                    placeholder="Ex. 6-100"
+                    keyboardType="numeric"
+                  />
+              </View>
+              <View style={styles.inputWrapper}>
+                <Text>include LowerCase</Text>
+                <BouncyCheckbox
+                  useBuiltInState={false}
+                  isChecked={lowercase}
+                  onPress={() => setlowercase(!lowercase)}
+                  fillColor='green'
+                />
+              </View>
+              <View style={styles.inputWrapper}>
+                <Text>include UppperCase</Text>
+                <BouncyCheckbox
+                  useBuiltInState={false}
+                  isChecked={Uppercase}
+                  onPress={() => setUppercase(!Uppercase)}
+                  fillColor='red'
+                />
+              </View>
+              <View style={styles.inputWrapper}>
+                <Text>include Numbers</Text>
+                <BouncyCheckbox
+                  useBuiltInState={false}
+                  isChecked={numbers}
+                  onPress={() => setNumbers(!numbers)}
+                  fillColor='brown'
+                />
+              </View>
+              <View style={styles.inputWrapper}>
+                <Text>include Symbols</Text>
+                <BouncyCheckbox
+                  useBuiltInState={false}
+                  isChecked={symbols}
+                  onPress={() => setSymbols(!symbols)}
+                  fillColor='orange'
+                />
+              </View>
+              <View style={styles.formActions}
+              >
+                <TouchableOpacity disabled={!isValid} style={styles.primaryBtn} onPress={handleSubmit}>
+                  <Text style={styles.primaryBtnTxt} >Generate Password</Text>
                 </TouchableOpacity>
-                <TouchableOpacity>
-                  <Text>Reset</Text>
+                <TouchableOpacity style={styles.secondaryBtn} onPress={() => {
+                  handleReset();
+                  resetPasswords();
+                }}>
+                  <Text style={styles.secondaryBtnTxt}
+                  >Reset</Text>
                 </TouchableOpacity>
               </View>
             </>
           )}
         </Formik>
       </View>
+      {ispassgenerated ? (
+        <View style={[styles.card, styles.cardElevated]}>
+          <Text style={styles.subTitle}>Result:</Text>
+          <Text style={styles.description}>long press to Copy</Text>
+          <Text style={styles.generatedPassword} selectable={true}>
+          {password}
+          </Text>
+        </View>
+      ) : null}
     </ScrollView>
   </SafeAreaView >
+
   )
 }
 
@@ -200,7 +248,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#CAD5E2',
   },
   secondaryBtnTxt: {
+    color: '#fff',
     textAlign: 'center',
+    fontWeight: '700',
+    justifyContent: 'center',
   },
   card: {
     padding: 12,
